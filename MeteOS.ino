@@ -48,9 +48,10 @@ int configarranque = 0;
 byte byteRead;
 bool unidad = false;
 int val;
-char auth[] = "51e6fadccf364b998ff5d38741cde270";
-char ssid[] = "Orange-04da";
-char pass[] = "6DC243F93D92E5674A57EDF6A7";
+int mytimeout = millis() / 1000;
+char auth[] = "XXXXXX";
+char ssid[] = "XXXXXX";
+char pass[] = "XXXXXX";
 
 void sendSensor()
 {
@@ -188,12 +189,13 @@ void arranque(){
     display.flipScreenVertically();
     display.drawXbm(0, 0, 128 , 59, arranque_bits);
     display.drawString(0,50,"Iniciando ...");
+    Blynk.begin(auth, ssid, pass);
     display.display();
     delay(2000);
     display.clear();
-    display.end();
-    
+    display.end();       
 }
+
 FrameCallback frames[] = { drawFrame1, drawFrame2, drawFrame3, drawFrame4 };
 int frameCount = 4;
 OverlayCallback overlays[] = { msOverlay };
@@ -220,7 +222,6 @@ void setup() {
   pinMode(arriba, INPUT);
   pinMode(abajo, INPUT);
   pinMode(2, OUTPUT);
-  Blynk.begin(auth, ssid, pass);
   timer.setInterval(1000L, sendSensor);
   arranque();
   ui.setTargetFPS(60);
@@ -235,15 +236,15 @@ void setup() {
   ui.init();
   display.flipScreenVertically();
   sensor.begin();
-
-
 }
 
 void loop() {
   switch (configarranque){
   case 0: {
   SerialBT.end();
-  Blynk.run();
+   if(Blynk.connected()){
+    Blynk.run();
+  }
   timer.run();
   buttonState = digitalRead(boton);
   buttonState1 = digitalRead(boton2);

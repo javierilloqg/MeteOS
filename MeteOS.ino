@@ -10,6 +10,9 @@ uint8_t temprature_sens_read();
 //
 
 #include <Wire.h>
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
 #include "SSD1306Wire.h"
 #include "OLEDDisplayUi.h"
 #include "images.h"
@@ -19,6 +22,7 @@ uint8_t temprature_sens_read();
 
 RTC_DS1307 rtc;
 BluetoothSerial SerialBT;
+BlynkTimer timer;
 
 #define DHTPIN 4
 #define DHTTYPE DHT11
@@ -44,6 +48,25 @@ int configarranque = 0;
 byte byteRead;
 bool unidad = false;
 int val;
+char auth[] = "51e6fadccf364b998ff5d38741cde270";
+char ssid[] = "Orange-04da";
+char pass[] = "6DC243F93D92E5674A57EDF6A7";
+
+void sendSensor()
+{
+  int h = sensor.readHumidity();
+  int t = sensor.readTemperature(); // or dht.readTemperature(true) for Fahrenheit
+
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+  // You can send any value at any time.
+  // Please don't send more that 10 values per second.
+  Blynk.virtualWrite(V5, h);
+  Blynk.virtualWrite(V6, t);
+}
+
 
 void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state){
   display->setTextAlignment(TEXT_ALIGN_CENTER);
@@ -167,9 +190,6 @@ void arranque(){
     display.drawString(0,50,"Iniciando ...");
     display.display();
     delay(2000);
-    display.drawXbm(0, 0, 128 , 59, arranque_bits);
-    display.drawString(0,50,"Conectando ...");
-    delay(3000);
     display.clear();
     display.end();
     
@@ -200,6 +220,8 @@ void setup() {
   pinMode(arriba, INPUT);
   pinMode(abajo, INPUT);
   pinMode(2, OUTPUT);
+  Blynk.begin(auth, ssid, pass);
+  timer.setInterval(1000L, sendSensor);
   arranque();
   ui.setTargetFPS(60);
   ui.setActiveSymbol(activeSymbol);
@@ -221,6 +243,8 @@ void loop() {
   switch (configarranque){
   case 0: {
   SerialBT.end();
+  Blynk.run();
+  timer.run();
   buttonState = digitalRead(boton);
   buttonState1 = digitalRead(boton2);
   if (buttonState == HIGH) {

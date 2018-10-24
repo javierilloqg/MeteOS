@@ -1,6 +1,6 @@
 ﻿# MeteOS 
 
-En este repositorio voy a subir todos los archivos relacionados con mi proyecto de la Universidad para así disponer de ellos en todos mis ordenadores. 
+MeteOS es una pequeña estación meteorológica con múltiples funciones básicas y extendibles creada por Javier Quesada para un proyecto de la asignatura Procesadores Integrados, del grado en Ingeniería Electrónica Industrial de la Universidad de Granada.
 
 # ¿Qué características tiene?
 
